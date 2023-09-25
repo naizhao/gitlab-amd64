@@ -44,6 +44,7 @@ jobs:
         run: |
           VERSION=${{ env.RELEASE_VERSION }}
           RELEASE_CAT=${{ matrix.RELEASE_CAT }}
+          VERSION=${VERSION/-$RELEASE_CAT.0/}
           IFS='.' read -ra VER <<< "$VERSION"
           PUSH_TAGS="${VERSION}-$RELEASE_CAT.0, ${VERSION}-$RELEASE_CAT, ${VER[0]}.${VER[1]}-$RELEASE_CAT, ${VER[0]}-$RELEASE_CAT, $RELEASE_CAT"
           if [[ "$RELEASE_CAT" == "ee" ]]; then
