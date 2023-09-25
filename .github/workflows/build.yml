@@ -34,7 +34,7 @@ jobs:
             
           if echo "$response" | grep -q "$RELEASE_VERSION"; then
             echo "Tag exists in GHCR. Exit the workflow."
-            exit 1
+            exit 0
           else 
             echo "Tag does not exist in GHCR. Continue the workflow."
           fi
