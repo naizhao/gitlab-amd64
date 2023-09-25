@@ -39,7 +39,7 @@ jobs:
 
 
       - name: Generate PUSH_TAGS
-        id: generate-tags
+        id: generate-push-tags
         run: |
           VERSION=${{ env.RELEASE_VERSION }}
           IFS='.' read -ra VER <<< "$VERSION"
