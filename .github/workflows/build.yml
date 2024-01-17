@@ -13,7 +13,7 @@ jobs:
       - name: Get latest major GitLab versions
         id: get-versions
         run: |
-          VERSIONS=$(curl --silent "https://gitlab.com/gitlab-org/gitlab/-/tags?format=atom" | grep -oP '(?<=<summary>Version v)[v\.0-9\-]+(?=-ee)' | awk -F'.' '!seen[$1"."$2]++' | sort -Vr | head -n3)
+          VERSIONS=$(curl --silent "https://gitlab.com/gitlab-org/gitlab/-/tags?format=atom" | grep -oP '(?<=<summary>Version v)[v\.0-9\-]+(?=-ee)' | awk -F'.' '!seen[$1"."$2]++' | sort -Vr | head -n4)
           VERSIONS_ARRAY=($VERSIONS)
           VERSIONS_JSON=$(echo -n '['; for v in "${VERSIONS_ARRAY[@]}"; do echo -n "\"$v\","; done; echo -n ']')
           VERSIONS_JSON="${VERSIONS_JSON%,}]" # Remove the trailing comma and close the JSON array
@@ -111,5 +111,5 @@ jobs:
           tags: ${{ env.push_tags }}
           platforms: linux/amd64
           build-args: |
-            RELEASE_PACKAGE="gitlab-${{ matrix.PACKAGE_CAT }}"
+            RELEASE_PACKAGE=gitlab-${{ matrix.PACKAGE_CAT }}
             RELEASE_VERSION=${{ env.RELEASE_VERSION }}
