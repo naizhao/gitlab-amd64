@@ -23,7 +23,7 @@ jobs:
         id: get-version
         run: |
           RELEASE_CAT=${{ matrix.RELEASE_CAT }}
-          VERSION=$(curl --silent "https://gitlab.com/gitlab-org/gitlab/-/tags?format=atom" | grep -oP -m1 '(?<=<summary>Version v)[v\.0-9a-z\-]+(?=-ee)')
+          VERSION=$(curl --silent "https://gitlab.com/gitlab-org/gitlab/-/tags?format=atom" | grep -oP '(?<=<summary>Version v)[v\.0-9\-]+(?=-ee)' | sort -V | tail -n1)
           RELEASE_VERSION="$VERSION-$RELEASE_CAT.0"
           echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
 
