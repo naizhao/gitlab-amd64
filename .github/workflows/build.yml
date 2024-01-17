@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       versions: ${{ steps.get-versions.outputs.versions }}
+      latest_version: ${{ steps.get-versions.outputs.latest_version }}
     steps:
       - name: Get latest major GitLab versions
         id: get-versions
