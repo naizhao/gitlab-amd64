@@ -71,9 +71,9 @@ jobs:
           PUSH_TAGS="${VERSION}-$PACKAGE_CAT.0, ${VERSION}-$PACKAGE_CAT, ${VER[0]}.${VER[1]}-$PACKAGE_CAT"
           if [[ "${{ matrix.LATEST_VERSION }}" == "${VERSION}" ]]; then
             PUSH_TAGS="${PUSH_TAGS}, ${VER[0]}-$PACKAGE_CAT, $PACKAGE_CAT"
-          fi
-          if [[ "$PACKAGE_CAT" == "ee" ]]; then
-            PUSH_TAGS="${PUSH_TAGS}, latest-${VER[0]}, latest"
+            if [[ "$PACKAGE_CAT" == "ee" ]]; then
+              PUSH_TAGS="${PUSH_TAGS}, latest-${VER[0]}, latest"
+            fi
           fi
           echo "PUSH_TAGS=$PUSH_TAGS" >> $GITHUB_ENV
 
