@@ -5,16 +5,23 @@ on:
   workflow_dispatch:  # allows the workflow to be triggered manually
 
 jobs:
+  setup-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest major GitLab versions
+        id: get-versions
+        run: |
+          VERSIONS=$(curl --silent "https://gitlab.com/gitlab-org/gitlab/-/tags?format=atom" | grep -oP '(?<=<summary>Version v)[v\.0-9\-]+(?=-ee)' | sort -V | tail -n1)
+          VERSIONS_ARRAY=($VERSIONS)
+          echo "VERSIONS=${VERSIONS_ARRAY[*]}" >> $GITHUB_ENV
+
   build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - RELEASE_PACKAGE: gitlab-ce
-            RELEASE_CAT: ce
-          - RELEASE_PACKAGE: gitlab-ee
-            RELEASE_CAT: ee
+        PACKAGE_CAT: [ce, ee]
+        PACKAGE_VERSIONS: env.VERSIONS
 
     steps:
       - uses: actions/checkout@v3
@@ -22,9 +29,9 @@ jobs:
       - name: Get latest GitLab version
         id: get-version
         run: |
-          RELEASE_CAT=${{ matrix.RELEASE_CAT }}
-          VERSION=$(curl --silent "https://gitlab.com/gitlab-org/gitlab/-/tags?format=atom" | grep -oP '(?<=<summary>Version v)[v\.0-9\-]+(?=-ee)' | sort -V | tail -n1)
-          RELEASE_VERSION="$VERSION-$RELEASE_CAT.0"
+          PACKAGE_CAT=${{ matrix.PACKAGE_CAT }}
+          VERSION=${{ matrix.PACKAGE_VERSIONS }}
+          RELEASE_VERSION="$VERSION-$PACKAGE_CAT.0"
           echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
 
           # Check if the tag exists in GHCR
@@ -46,11 +53,11 @@ jobs:
         if: env.TAG_EXISTS == 'false'
         run: |
           VERSION=${{ env.RELEASE_VERSION }}
-          RELEASE_CAT=${{ matrix.RELEASE_CAT }}
-          VERSION=${VERSION/-$RELEASE_CAT.0/}
+          PACKAGE_CAT=${{ matrix.PACKAGE_CAT }}
+          VERSION=${VERSION/-$PACKAGE_CAT.0/}
           IFS='.' read -ra VER <<< "$VERSION"
-          PUSH_TAGS="${VERSION}-$RELEASE_CAT.0, ${VERSION}-$RELEASE_CAT, ${VER[0]}.${VER[1]}-$RELEASE_CAT, ${VER[0]}-$RELEASE_CAT, $RELEASE_CAT"
-          if [[ "$RELEASE_CAT" == "ee" ]]; then
+          PUSH_TAGS="${VERSION}-$PACKAGE_CAT.0, ${VERSION}-$PACKAGE_CAT, ${VER[0]}.${VER[1]}-$PACKAGE_CAT, ${VER[0]}-$PACKAGE_CAT, $PACKAGE_CAT"
+          if [[ "$PACKAGE_CAT" == "ee" ]]; then
             PUSH_TAGS="${PUSH_TAGS}, latest-${VER[0]}, latest"
           fi
           echo "PUSH_TAGS=$PUSH_TAGS" >> $GITHUB_ENV
@@ -98,5 +105,5 @@ jobs:
           tags: ${{ env.push_tags }}
           platforms: linux/amd64
           build-args: |
-            RELEASE_PACKAGE=${{ matrix.RELEASE_PACKAGE }}
+            RELEASE_PACKAGE="gitlab-${{ matrix.PACKAGE_CAT }}"
             RELEASE_VERSION=${{ env.RELEASE_VERSION }}
