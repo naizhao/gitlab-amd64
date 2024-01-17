@@ -13,13 +13,13 @@ jobs:
       - name: Get latest major GitLab versions
         id: get-versions
         run: |
-          VERSIONS=$(curl --silent "https://gitlab.com/gitlab-org/gitlab/-/tags?format=atom" | grep -oP '(?<=<summary>Version v)[v\.0-9\-]+' | sort -V | tail -n3)
-          echo "VERSIONS=$VERSIONS"
+          VERSIONS=$(curl --silent "https://gitlab.com/gitlab-org/gitlab/-/tags?format=atom" | grep -oP '(?<=<summary>Version v)[v\.0-9\-]+(?=-ee)' | awk -F'.' '!seen[$1"."$2]++' | sort -Vr | head -n3)
+          echo "VERSIONS=$VERSIONS" >> $GITHUB_ENV
 
       - name: Set output
         id: set-output
         run: |
-          VERSIONS="${{ steps.get-versions.outputs.VERSIONS }}"
+          VERSIONS="${{ env.VERSIONS }}"
           VERSIONS_ARRAY=($VERSIONS)
           VERSIONS_JSON=$(echo -n '['; for v in "${VERSIONS_ARRAY[@]}"; do echo -n "\"$v\","; done; echo -n ']')
           VERSIONS_JSON="${VERSIONS_JSON%,}]" # Remove the trailing comma and close the JSON array
