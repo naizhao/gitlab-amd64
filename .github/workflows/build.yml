@@ -15,9 +15,11 @@ jobs:
         run: |
           VERSIONS=$(curl --silent "https://gitlab.com/gitlab-org/gitlab/-/tags?format=atom" | grep -oP '(?<=<summary>Version v)[v\.0-9\-]+(?=-ee)' | awk -F'.' '!seen[$1"."$2]++' | sort -Vr | head -n4)
           VERSIONS_ARRAY=($VERSIONS)
+          LATEST_VERSION=${VERSIONS_ARRAY[0]}
           VERSIONS_JSON=$(echo -n '['; for v in "${VERSIONS_ARRAY[@]}"; do echo -n "\"$v\","; done; echo -n ']')
           VERSIONS_JSON="${VERSIONS_JSON%,}]" # Remove the trailing comma and close the JSON array
           echo "VERSIONS=$VERSIONS_JSON" >> $GITHUB_ENV
+          echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
           echo "::set-output name=versions::$VERSIONS_JSON"
 
   build:
@@ -62,7 +64,11 @@ jobs:
           PACKAGE_CAT=${{ matrix.PACKAGE_CAT }}
           VERSION=${VERSION/-$PACKAGE_CAT.0/}
           IFS='.' read -ra VER <<< "$VERSION"
-          PUSH_TAGS="${VERSION}-$PACKAGE_CAT.0, ${VERSION}-$PACKAGE_CAT, ${VER[0]}.${VER[1]}-$PACKAGE_CAT, ${VER[0]}-$PACKAGE_CAT, $PACKAGE_CAT"
+          if [[ "${{ env.LATEST_VERSION }}" == "${VERSION}"]]; then
+            PUSH_TAGS="${VERSION}-$PACKAGE_CAT.0, ${VERSION}-$PACKAGE_CAT, ${VER[0]}.${VER[1]}-$PACKAGE_CAT, ${VER[0]}-$PACKAGE_CAT, $PACKAGE_CAT"
+          else
+            PUSH_TAGS="${VERSION}-$PACKAGE_CAT.0, ${VERSION}-$PACKAGE_CAT, ${VER[0]}.${VER[1]}-$PACKAGE_CAT"
+          fi
           if [[ "$PACKAGE_CAT" == "ee" ]]; then
             PUSH_TAGS="${PUSH_TAGS}, latest-${VER[0]}, latest"
           fi
