@@ -31,7 +31,7 @@ jobs:
       matrix:
         PACKAGE_CAT: [ce, ee]
         PACKAGE_VERSIONS: ${{fromJson(needs.setup-versions.outputs.versions)}}
-        LATEST_VERSION: ${{fromJson(needs.setup-versions.outputs.latest_version)}}
+        LATEST_VERSION: ${{needs.setup-versions.outputs.latest_version}}
 
     steps:
       - uses: actions/checkout@v3
