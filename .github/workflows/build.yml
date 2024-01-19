@@ -49,14 +49,14 @@ jobs:
           # Check if the tag exists in GHCR
           GHCR_TOKEN=$(echo ${{ secrets.GITHUB_TOKEN }} | base64)
           response=$(curl -s -H "Authorization: Bearer ${GHCR_TOKEN}" \
-            "https://ghcr.io/v2/${{ github.repository_owner }}/gitlab-amd64/tags/list")
+            "https://ghcr.io/v2/${{ github.repository_owner }}/gitlab-amd64/manifests/$RELEASE_VERSION")
             
-          if echo "$response" | grep -qE "$RELEASE_VERSION($|,|\s)"; then
-            echo "Tag exists in GHCR. Exit the workflow."
-            echo "TAG_EXISTS=true" >> $GITHUB_ENV
-          else 
+          if echo "$response" | grep -q "MANIFEST_UNKNOWN"; then
             echo "Tag does not exist in GHCR. Continue the workflow."
             echo "TAG_EXISTS=false" >> $GITHUB_ENV
+          else
+            echo "Tag exists in GHCR. Exit the workflow."
+            echo "TAG_EXISTS=true" >> $GITHUB_ENV
           fi
 
 
