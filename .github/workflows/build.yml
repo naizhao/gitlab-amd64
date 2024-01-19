@@ -1,7 +1,7 @@
 name: build
 on:
   schedule:
-    - cron: '0 0 * * *'  # the action will run everyday at 00:00 UTC
+    - cron: '0 0 * * 1,4'
   workflow_dispatch:  # allows the workflow to be triggered manually
 
 jobs:
