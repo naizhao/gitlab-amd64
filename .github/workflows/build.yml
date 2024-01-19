@@ -43,7 +43,7 @@ jobs:
         run: |
           PACKAGE_CAT=${{ matrix.PACKAGE_CAT }}
           VERSION=${{ matrix.PACKAGE_VERSIONS }}
-          RELEASE_VERSION="$VERSION-$PACKAGE_CAT.0"
+          RELEASE_VERSION="$VERSION-$PACKAGE_CAT"
           echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
 
           # Check if the tag exists in GHCR
